@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .section { background: white; padding: 20px; border: 1px solid #ddd; margin-bottom: 20px; }
+        input { padding: 10px; margin: 5px; }
+        button { padding: 10px; background: green; color: white; border: none; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>A.AMEN Admin</h1>
+    <div class="section">
+        <form method="POST">
+            <input type="text" name="category" placeholder="Category" required>
+            <input type="text" name="type" placeholder="Type" required>
+            <input type="text" name="size" placeholder="Size" required>
+            <input type="number" name="price" placeholder="Price (Whole Number)" required>
+            <button type="submit">Add Item</button>
+        </form>
+    </div>
+    <table>
+        <tr><th>Category</th><th>Type</th><th>Size</th><th>Price</th><th>Action</th></tr>
+        {% for cat, types in data.items() %}
+            {% for itype, sizes in types.items() %}
+                {% for size, price in sizes.items() %}
+                <tr>
+                    <td>{{ cat }}</td><td>{{ itype }}</td><td>{{ size }}</td><td>R{{ price }}</td>
+                    <td><a href="/delete/{{cat}}/{{itype}}/{{size}}">Delete</a></td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+    </table>
+    <br><a href="/">Back to Home</a>
+</body>
+</html>
