@@ -1,59 +1,56 @@
-from flask import Flask, jsonify, render_template, request, redirect, url_for
-import json
 import os
+import json
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
+# File path for data
+DATA_FILE = 'data.json'
+
 def load_data():
-    if not os.path.exists("data.json") or os.stat("data.json").st_size == 0:
-        return {}
-    with open("data.json", "r") as file:
-        return json.load(file)
+    if not os.path.exists(DATA_FILE):
+        return []
+    with open(DATA_FILE, 'r') as f:
+        return json.load(f)
 
 def save_data(data):
-    with open("data.json", "w") as file:
-        json.dump(data, file, indent=4)
+    with open(DATA_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+# --- ROUTES ---
 
-@app.route("/items")
-def get_items():
-    return jsonify(load_data())
+@app.route('/')
+def index():
+    items = load_data()
+    # Get search query from the search bar
+    search_query = request.args.get('search', '').lower()
+    if search_query:
+        items = [i for i in items if search_query in i['name'].lower()]
+    return render_template('index.html', items=items)
 
-@app.route("/admin", methods=["GET", "POST"])
+@app.route('/admin')
 def admin():
-    data = load_data()
-    if request.method == "POST":
-        category = request.form.get("category").lower().strip()
-        item_type = request.form.get("type").strip()
-        size = request.form.get("size").strip()
-        
-        # Back to simple Integer
-        try:
-            price = int(request.form.get("price"))
-        except:
-            price = 0
+    items = load_data()
+    return render_template('admin.html', items=items)
 
-        if category not in data: data[category] = {}
-        if item_type not in data[category]: data[category][item_type] = {}
-        
-        data[category][item_type][size] = price
-        save_data(data)
-        return redirect(url_for("admin"))
+@app.route('/add', methods=['POST'])
+def add_item():
+    name = request.form.get('name')
+    price = request.form.get('price')
+    if name and price:
+        items = load_data()
+        items.append({'name': name, 'price': price})
+        save_data(items)
+    return redirect(url_for('admin'))
 
-    return render_template("admin.html", data=data)
-
-@app.route("/delete/<cat>/<itype>/<size>")
-def delete_item(cat, itype, size):
-    data = load_data()
-    if cat in data and itype in data[cat] and size in data[cat][itype]:
-        del data[cat][itype][size]
-        if not data[cat][itype]: del data[cat][itype]
-        if not data[cat]: del data[cat]
-        save_data(data)
-    return redirect(url_for("admin"))
+@app.route('/delete/<int:item_id>')
+def delete_item(item_id):
+    items = load_data()
+    if 0 <= item_id < len(items):
+        items.pop(item_id)
+        save_data(items)
+    return redirect(url_for('admin'))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
