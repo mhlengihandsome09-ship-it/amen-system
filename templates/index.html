@@ -1,99 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>A.AMEN ENTERPRISE</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.AMEN ENTERPRISE - Price Search</title>
     <style>
-        :root { --brand-green: #2e7d32; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; text-align: center; }
-        nav { background: #333; padding: 10px; display: flex; justify-content: space-between; color: white; }
-        nav a { color: white; text-decoration: none; border: 1px solid white; padding: 5px 10px; border-radius: 4px; }
-        header { background: var(--brand-green); color: white; padding: 20px; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        #price-display { background: white; padding: 30px; border-radius: 15px; border: 3px dashed var(--brand-green); display: none; margin-top: 20px; }
-        .price-tag { font-size: 50px; color: var(--brand-green); font-weight: bold; }
-        button.reset { background: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 20px; }
-    </style>
-</head>
-<body>
-
-<nav>
-    <span>A.AMEN SYSTEM</span>
-    <a href="/admin">Admin Settings</a>
-</nav>
-
-<div class="container">
-    <header>
-        <h1>A.AMEN ENTERPRISE</h1>
-    </header>
-
-    <div id="category-section">
-        <h3>Step 1: Choose Category</h3>
-        <div id="category-grid" class="grid"></div>
-    </div>
-
-    <div id="type-section" style="display:none;">
-        <h3 id="step2-label">Step 2: Choose Size</h3>
-        <div id="type-grid" class="grid"></div>
-        <button class="reset" onclick="resetApp()">Back</button>
-    </div>
-
-    <div id="price-display">
-        <h3 id="final-name"></h3>
-        <span class="price-tag" id="price-value">R0</span>
-        <br>
-        <button class="reset" onclick="resetApp()">New Search</button>
-    </div>
-</div>
-
-<script>
-    let inventory = {};
-
-    fetch("/items").then(res => res.json()).then(data => {
-        inventory = data;
-        renderCategories();
-    });
-
-    function renderCategories() {
-        const grid = document.getElementById("category-grid");
-        grid.innerHTML = "";
-        Object.keys(inventory).forEach(cat => {
-            let div = document.createElement("div");
-            div.className = "card";
-            div.innerText = cat;
-            div.onclick = () => selectCategory(cat);
-            grid.appendChild(div);
-        });
-    }
-
-    function selectCategory(cat) {
-        document.getElementById("category-section").style.display = "none";
-        document.getElementById("type-section").style.display = "block";
-        const grid = document.getElementById("type-grid");
-        grid.innerHTML = "";
-        const types = inventory[cat];
-        for (let type in types) {
-            for (let size in types[type]) {
-                let div = document.createElement("div");
-                div.className = "card";
-                div.innerHTML = `<small>${type}</small><br>${size}`;
-                div.onclick = () => {
-                    document.getElementById("type-section").style.display = "none";
-                    document.getElementById("price-display").style.display = "block";
-                    document.getElementById("final-name").innerText = type + " (" + size + ")";
-                    document.getElementById("price-value").innerText = "R" + types[type][size];
-                };
-                grid.appendChild(div);
-            }
+        /* Modern, Clean Design */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
         }
-    }
+        .container { 
+            width: 100%; 
+            max-width: 500px; 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1); 
+        }
+        h1 { color: #1a73e8; margin-top: 0; font-size: 24px; text-align: center; }
+        
+        /* Admin Button Styling */
+        .admin-nav { text-align: right; margin-bottom: 20px; }
+        .admin-btn { 
+            text-decoration: none; 
+            background: #6c757d; 
+            color: white; 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            font-size: 13px; 
+            font-weight: bold;
+        }
 
-    function resetApp() {
-        document.getElementById("price-display").style.display = "none";
-        document.getElementById("type-section").style.display = "none";
-        document.getElementById("category-section").style.display = "block";
-    }
-</script>
-</body>
-</html>
+        /* Search Bar Styling */
+        .search-box { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 25px; 
+        }
+        input[type="text"] { 
+            flex: 1; 
+            padding: 12px; 
+            border: 2px solid #dfe1e5; 
+            border-radius: 8px; 
+            outline: none; 
+        }
+        input[type="text"]:focus { border-color: #1a73e8; }
+        .search-btn { 
+            padding: 12px 20px; 
+            background: #1a73e8; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+
+        /* Price List Styling */
+        .item-list { border-top: 1px solid #eee; }
+        .item { 
+            padding: 15px 0; 
+            border-bottom: 1px solid #eee; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .item-name { font-weight: 600; color: #333; text-transform: capitalize; }
+        .item-price { color: #28a745; font-weight: bold; font-size:
